@@ -34,20 +34,25 @@ def log_action(username, action):
     conn.commit()
     conn.close()
 
-# --- Inject Custom CSS ---
+# --- Session state ---
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+    st.session_state.username = ""
+
+# --- Init DB ---
+init_db()
+
+# --- Inject CSS ---
 st.markdown("""
     <style>
-        body {
-            background: linear-gradient(160deg, #e0e7ff, #c084fc);
-        }
-        .mobile-frame {
-            max-width: 375px;
-            margin: 3rem auto;
-            padding: 2rem 1.5rem;
+        .mobile-container {
+            max-width: 400px;
+            margin: 2rem auto;
             background-color: #f3e8ff;
+            padding: 2rem 1.5rem;
             border-radius: 2rem;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-            border: 1px solid #d1d5db;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e0d4fc;
         }
         .logo-text {
             font-size: 1.5rem;
@@ -59,36 +64,29 @@ st.markdown("""
         .greeting {
             text-align: center;
             font-size: 1.1rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
             color: #4b5563;
         }
-        .btn {
-            width: 100%;
+        .stButton>button {
             background-color: #6d28d9;
             color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 0.75rem;
-            font-size: 1rem;
+            border-radius: 10px;
+            width: 100%;
+            padding: 0.75rem 0;
             margin-top: 1rem;
+        }
+        .stTextInput>div>input {
+            padding: 0.6rem;
         }
     </style>
 """, unsafe_allow_html=True)
 
-# --- Init DB ---
-init_db()
-
-# --- Session state for login ---
-if "logged_in" not in st.session_state:
-    st.session_state.logged_in = False
-    st.session_state.username = ""
-
-# --- Main UI ---
+# --- Main Content Wrapper ---
 with st.container():
-    st.markdown('<div class="mobile-frame">', unsafe_allow_html=True)
+    st.markdown('<div class="mobile-container">', unsafe_allow_html=True)
 
     if not st.session_state.logged_in:
-        # Login Screen
+        # Login Page
         st.markdown('<div class="logo-text">WELLS FARGO</div>', unsafe_allow_html=True)
         st.markdown('<div class="greeting">Good morning 👋</div>', unsafe_allow_html=True)
 
@@ -100,33 +98,30 @@ with st.container():
                 st.session_state.logged_in = True
                 st.session_state.username = username
                 log_action(username, "Login")
-                st.success("Login successful!")
                 st.rerun()
             else:
-                st.error("Invalid credentials. Please try again.")
+                st.error("Invalid username or password.")
     else:
-        # Dashboard
+        # Dashboard Page
         st.markdown(f'<div class="logo-text">Welcome, {st.session_state.username}!</div>', unsafe_allow_html=True)
-        st.markdown('<div class="greeting">How may I help you today?</div>', unsafe_allow_html=True)
+        st.markdown('<div class="greeting">What would you like to do?</div>', unsafe_allow_html=True)
 
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("Check Balance"):
+            if st.button("💰 Check Balance"):
                 log_action(st.session_state.username, "Check Balance")
-                st.info("Balance: ₹1,20,000")
-
-            if st.button("Pay Bills"):
-                log_action(st.session_state.username, "Pay Bills")
-                st.success("Bill payment screen loading...")
-
-        with col2:
-            if st.button("Transfer Funds"):
-                log_action(st.session_state.username, "Transfer Funds")
-                st.success("Transfer screen loading...")
-
-            if st.button("Logout"):
+                st.info("Your current balance is ₹1,20,000")
+            if st.button("📤 Logout"):
                 st.session_state.logged_in = False
                 st.session_state.username = ""
                 st.rerun()
+
+        with col2:
+            if st.button("💳 Pay Bills"):
+                log_action(st.session_state.username, "Pay Bills")
+                st.success("Redirecting to bill payment...")
+            if st.button("🔁 Transfer"):
+                log_action(st.session_state.username, "Transfer Funds")
+                st.success("Redirecting to transfer page...")
 
     st.markdown('</div>', unsafe_allow_html=True)

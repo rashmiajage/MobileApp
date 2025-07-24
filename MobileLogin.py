@@ -1,78 +1,71 @@
 import streamlit as st
 
-# Page setup
-st.set_page_config(page_title="Mobile Styled App", layout="centered")
+# Set page config
+st.set_page_config(page_title="Mobile App", layout="centered")
 
-# Mobile container style
+# Inject custom CSS for the mobile container
 st.markdown("""
     <style>
-        .mobile-container {
-            width: 375px;
-            margin: 40px auto;
+        .mobile-wrapper {
+            max-width: 375px;
+            margin: 50px auto;
+            background-color: #f3e8ff;
             padding: 30px 20px;
-            border: 8px solid #ccc;
-            border-radius: 30px;
-            background-color: #f3e8ff; /* light purple */
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border-radius: 25px;
+            border: 6px solid #bfa2ff;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
         }
         .logo {
             text-align: center;
-            font-size: 24px;
+            font-size: 22px;
             font-weight: bold;
             color: #5e17eb;
-            margin-bottom: 5px;
         }
         .greeting {
             text-align: center;
             font-size: 16px;
-            color: #333;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
-        .input-field {
-            margin-bottom: 20px;
-        }
-        .button-style {
-            background-color: #5e17eb;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            width: 100%;
-            font-weight: bold;
+        .field-label {
+            margin-top: 10px;
+            font-size: 14px;
+            font-weight: 500;
         }
     </style>
 """, unsafe_allow_html=True)
 
-# Session state to switch screens
+# Simulate login state
 if "signed_in" not in st.session_state:
     st.session_state.signed_in = False
 
-# Mobile screen content
+# Render everything inside a container
 with st.container():
-    st.markdown('<div class="mobile-container">', unsafe_allow_html=True)
+    st.markdown('<div class="mobile-wrapper">', unsafe_allow_html=True)
+
+    # Logo and greeting
+    st.markdown('<div class="logo">WELLS FARGO</div>', unsafe_allow_html=True)
+    st.markdown('<div class="greeting">Good morning 👋</div>', unsafe_allow_html=True)
 
     if not st.session_state.signed_in:
-        st.markdown('<div class="logo">WELLS FARGO</div>', unsafe_allow_html=True)
-        st.markdown('<div class="greeting">Good morning 👋</div>', unsafe_allow_html=True)
+        # Input fields and login button
+        st.markdown('<div class="field-label">Username</div>', unsafe_allow_html=True)
+        username = st.text_input("", key="username_input")
 
-        username = st.text_input("Username", key="username")
-        password = st.text_input("Password", type="password", key="password")
+        st.markdown('<div class="field-label">Password</div>', unsafe_allow_html=True)
+        password = st.text_input("", type="password", key="password_input")
 
         if st.button("Sign On", use_container_width=True):
-            # Dummy login logic
-            if username and password:
+            if username.strip() and password.strip():
                 st.session_state.signed_in = True
             else:
                 st.warning("Please enter both username and password.")
     else:
-        st.markdown('<div class="logo">WELLS FARGO</div>', unsafe_allow_html=True)
-        st.markdown('<div class="greeting">Welcome to your Dashboard</div>', unsafe_allow_html=True)
+        st.success("✅ Signed in successfully!")
+        st.markdown("### Dashboard")
+        st.metric("Balance", "$5,200")
+        st.metric("Transactions", "7 this week")
 
-        # Dashboard content
-        st.success("✅ Account Verified")
-        st.metric("Balance", "$5,000")
-        st.metric("Recent Transactions", "3")
-        st.button("Logout", use_container_width=True, on_click=lambda: st.session_state.update({"signed_in": False}))
+        if st.button("Logout", use_container_width=True):
+            st.session_state.signed_in = False
 
     st.markdown('</div>', unsafe_allow_html=True)
